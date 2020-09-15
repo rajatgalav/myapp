@@ -1,4 +1,7 @@
-const Blog = require('../models/blogModel')
+const lodash = require('lodash');
+const jwt = require('jsonwebtoken');
+const User = require('../models/userModel');
+const Blog = require('../models/blogModel');
 
 exports.get_all_blog = function(req, res) {
     Blog.find()
@@ -6,8 +9,16 @@ exports.get_all_blog = function(req, res) {
     ).catch(error => res.send(error))
 }
 
-exports.create_a_blog = function(req, res) {
-    console.log('request is', req.body)
+exports.create_a_blog = async function(req, res) {
+    if(lodash.isEmpty(req.headers.authorization)) res.send({status: 200, error_status: 1, message: 'Pass token in headers'})
+    let [scheme, token] = req.headers.authorization.split(' ')
+    let decode = jwt.decode(token)
+    
+    const user = await User.findById(decode.userId);
+
+    console.log('user is', user)
+    req.body.userId = decode.userId
+    req.body.username = user.username
     let new_blog = new Blog(req.body);
     new_blog.save(function(err, blog) {
       if (err)
@@ -37,4 +48,13 @@ exports.update_blog_data = function(req, res) {
         res.send({ status: 200, message: 'data updated successfully' })
     })
     .catch(error => res.send(error))
+}
+
+exports.delete_blog = function(req, res) {
+    Blog.findOneAndDelete(req.params.id)
+    .then(data => {
+        console.log('res is', data)
+        res.send({status: 200, message: 'deleted succesfully'})})
+    .catch(error => res.send(error));
+
 }

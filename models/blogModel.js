@@ -1,8 +1,13 @@
 'use strict';
 var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const User = require('./userModel');
 
-var BlogSchema = new Schema({
+var BlogSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     username: {
         type: String,
         required: 'Username is required field'

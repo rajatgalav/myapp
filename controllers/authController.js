@@ -1,3 +1,4 @@
+const lodash = require('lodash');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
@@ -17,6 +18,7 @@ exports.create = async function (req, res) {
 }
 
 exports.update = async function(req, res) {
+    if(lodash.isEmpty(req.headers.authorization)) res.send({status: 200, error_status: 1, message: 'Pass token in headers'})
     let [scheme, token] = req.headers.authorization.split(' ')
     let decode = jwt.decode(token)
     const user = await User.findById(decode.userId);
